@@ -20,4 +20,3 @@ Project Android tối giản dùng để trình bày hai yêu cầu:
 - `Projectile.java`: hướng bay và tốc độ của đạn C.
 
 Project không chứa boss, skill, chọn nhân vật hoặc các tính năng nâng cao của game chính.
-# 2D
