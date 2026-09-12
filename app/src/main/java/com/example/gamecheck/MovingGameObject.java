@@ -11,6 +11,7 @@ import java.util.Random;
 public class MovingGameObject {
 
     public enum MovementType {
+        PLAYER_CLAMP,
         BOUNCE,
         WRAP_LEFT_AND_TOP
     }
@@ -29,6 +30,7 @@ public class MovingGameObject {
     private float y;
     private float speedX;
     private float speedY;
+    private boolean enteredFromOppositeEdge;
 
     public MovingGameObject(Bitmap image, float x, float y, float size,
                             float speedX, float speedY, String name,
@@ -54,11 +56,19 @@ public class MovingGameObject {
         x += speedX * deltaTime;
         y += speedY * deltaTime;
 
-        if (movementType == MovementType.BOUNCE) {
+        if (movementType == MovementType.PLAYER_CLAMP) {
+            clampInsideScreen(screenWidth, screenHeight);
+        } else if (movementType == MovementType.BOUNCE) {
             bounceAtAllEdges(screenWidth, screenHeight);
         } else {
             wrapAtLeftAndTop(screenWidth, screenHeight);
         }
+    }
+
+    private void clampInsideScreen(float screenWidth, float screenHeight) {
+        float halfSize = size / 2f;
+        x = Math.max(halfSize, Math.min(screenWidth - halfSize, x));
+        y = Math.max(halfSize, Math.min(screenHeight - halfSize, y));
     }
 
     private void bounceAtAllEdges(float screenWidth, float screenHeight) {
@@ -88,6 +98,7 @@ public class MovingGameObject {
             // Touching the left edge makes B appear at the opposite edge.
             x = screenWidth - halfSize;
             y = randomBetween(halfSize, screenHeight - halfSize);
+            enteredFromOppositeEdge = true;
             speedX = -Math.abs(speedX);
             speedY = random.nextBoolean()
                     ? Math.abs(speedY)
@@ -98,6 +109,7 @@ public class MovingGameObject {
             // Touching the top edge makes B appear at the bottom edge.
             y = screenHeight - halfSize;
             x = randomBetween(halfSize, screenWidth - halfSize);
+            enteredFromOppositeEdge = true;
             speedY = -Math.abs(speedY);
             speedX = random.nextBoolean()
                     ? Math.abs(speedX)
@@ -153,5 +165,20 @@ public class MovingGameObject {
 
     public float getY() {
         return y;
+    }
+
+    public float getSize() {
+        return size;
+    }
+
+    public void setVelocity(float speedX, float speedY) {
+        this.speedX = speedX;
+        this.speedY = speedY;
+    }
+
+    public boolean consumeEnteredFromOppositeEdge() {
+        if (!enteredFromOppositeEdge) return false;
+        enteredFromOppositeEdge = false;
+        return true;
     }
 }
